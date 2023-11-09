@@ -1,31 +1,89 @@
-import React, { Component } from "react";
+import React, { Component } from 'react'
+import { formatDistanceToNow } from 'date-fns'
+import PropTypes from 'prop-types'
+import './task.css'
 
-export default class Task extends Component{
-
-render(){
-  const { label, onDeleted, onToggleDone, done } = this.props;
-
-  let classNames = "";
-  if (done){
-    classNames += 'completed';
+export default class Task extends Component {
+  constructor() {
+    super()
+    this.state = {
+      edit: false,
+      value: '',
+    }
   }
 
-return (
-  <li className = { classNames }
-      onClick={ onToggleDone }>
-  <div className="view">
-    <input className="toggle" type="checkbox"></input>
-    <label>
-        <span className="description">
-                { label }
-                </span>
-        <span className="created">created 5 minutes ago</span>
-    </label>
-        <button className="icon icon-edit"></button>
-        <button className="icon icon-destroy"
-                onClick={ onDeleted }></button>
-    </div>
-    </li>
-  );
-};
-};
+  render() {
+    const { onDeleted, onToggleDone, todo, taskEditor } = this.props
+    const { label, id, done, date } = todo
+    const { edit, value } = this.state
+
+    const handleClick = (e) => {
+      e.stopPropagation()
+      onDeleted(id)
+    }
+
+    const handleEdit = (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      taskEditor(id, value)
+      this.setState({ value: '' })
+      this.setState({ edit: false })
+    }
+
+    const time = formatDistanceToNow(date, { includeSeconds: true })
+
+    return (
+      <li className={done ? 'completed' : edit ? 'editing' : null}>
+        <div className="view">
+          <input
+            id={id}
+            className="toggle"
+            type="checkbox"
+            checked={done}
+            onChange={(event) => onToggleDone(id, event.target.checked)}
+          />
+          <label htmlFor={id}>
+            <span className="description">{label}</span>
+            <span className="created"> {time} </span>
+          </label>
+          <button
+            type="button"
+            className="icon icon-edit"
+            aria-label="edit"
+            onClick={() => this.setState(() => ({ edit: !edit, value: label }))}
+          />
+          <button type="button" className="icon icon-destroy" onClick={handleClick} aria-label="destroy" />
+        </div>
+        {edit && (
+          <form onSubmit={handleEdit}>
+            <input
+              onChange={(e) => this.setState({ value: e.target.value })}
+              type="text"
+              className="edit"
+              value={value}
+            />
+          </form>
+        )}
+      </li>
+    )
+  }
+}
+
+Task.defaultProps = {
+  onDeleted: () => {},
+  onToggleDone: () => {},
+  taskEditor: () => {},
+  todos: {},
+}
+
+Task.propTypes = {
+  onDeleted: PropTypes.func,
+  onToggleDone: PropTypes.func,
+  taskEditor: PropTypes.func,
+  todos: PropTypes.shape({
+    label: PropTypes.string,
+    id: PropTypes.number,
+    done: PropTypes.bool,
+    date: PropTypes.instanceOf(Date),
+  }),
+}

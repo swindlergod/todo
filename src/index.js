@@ -1,100 +1,109 @@
-import React, { Component } from 'react';
-import { createRoot } from 'react-dom/client';
+import React, { Component } from 'react'
+import { createRoot } from 'react-dom/client'
 
-import NewTaskForm from './components/new-task-form';
-import TaskList from './components/task-list';
-import Footer from './components/footer';
+import NewTaskForm from './components/new-task-form'
+import TaskList from './components/task-list'
+import Footer from './components/footer'
 
-class App extends Component{
-  
-  maxId = 100;
-  
-  state = {
-    todoData: [
-      this.createTodoItem ('drink coffee'),
-      this.createTodoItem ('cs2'),
-      this.createTodoItem ('react app')
-    ]
-  };
+import './index.css'
 
-  createTodoItem (label) {
-    return {
-      label,
-      done: false,
-      id: this.maxId++
+class App extends Component {
+  constructor() {
+    super()
+    this.state = {
+      todoData: [],
+      filter: 'allTasks',
     }
   }
 
   deleteItem = (id) => {
-    this.setState(( { todoData } ) => {
+    this.setState(({ todoData }) => {
+      const idx = todoData.findIndex((el) => el.id === id)
 
-      const idx = todoData.findIndex((el) => el.id === id);
-      
-      const newArray = [
-        ...todoData.slice(0, idx),
-        ...todoData.slice(idx + 1)
-      ];
+      const newArray = [...todoData.slice(0, idx), ...todoData.slice(idx + 1)]
 
       return {
-        todoData: newArray
+        todoData: newArray,
       }
-    });
-  };
+    })
+  }
+
+  onToggleDone = (id, data) => {
+    this.setState(({ todoData }) => ({
+      todoData: todoData.map((element) => {
+        if (id === element.id) element.done = data
+        return element
+      }),
+    }))
+  }
 
   addItem = (text) => {
-    const newItem = {
+    const data = {
+      id: Math.ceil(Math.random() * (1000000 - 100000) - 100000),
       label: text,
-      id: this.maxId++
-    };
-
-    this.setState(({ todoData }) => {
-      
-      const newArr = [
-        ...todoData,
-        newItem
-      ];
-
-      return {
-        todoData: newArr
-      }
-    });
-  };
-
-    onToggleDone = (id) => {
-      this.setState(( {todoData} ) => {
-
-        const idx = todoData.findIndex((el) => el.id === id);
-        const oldItem = todoData[idx];
-        const newItem = {...oldItem, done: !oldItem.done};
-
-        const newArray = [
-          ...todoData.slice(0, idx),
-          newItem,
-          ...todoData.slice(idx + 1)
-        ];
-
-        return {
-          todoData: newArray
-        }
-      })
+      done: false,
+      date: new Date(),
     }
 
+    this.setState(({ todoData }) => {
+      const newData = [...todoData, data]
+      return {
+        todoData: newData,
+      }
+    })
+  }
+
+  tasksCleaner = () => {
+    this.setState(({ todoData }) => ({ todoData: todoData.filter((element) => !element.done) }))
+  }
+
+  filterChanger = (todoData) => {
+    this.setState({ filter: todoData })
+  }
+
+  taskEditor = (id, label) => {
+    this.setState(({ todoData }) => ({
+      todoData: todoData.map((todo) => {
+        if (todo.id === id) {
+          todo.label = label
+        }
+        return todo
+      }),
+    }))
+  }
+
+  tasksFilter = () => {
+    const { todoData, filter } = this.state
+    return todoData.filter(({ done }) => {
+      const allTasks = filter === 'allTasks'
+      const completedTasks = filter === 'completedTasks'
+
+      return allTasks ? true : completedTasks ? done === true : done === false
+    })
+  }
+
   render() {
+    const { todoData, filter } = this.state
     return (
       <div>
-      <NewTaskForm
-      onItemAdded = {this.addItem} />
-      <TaskList 
-      todos={ this.state.todoData }
-      onDeleted={ this.deleteItem }
-      onToggleDone={ this.onToggleDone }/>
-      <Footer 
-      todos={ this.state.todoData }/>
+        <NewTaskForm onItemAdded={this.addItem} />
+        <TaskList
+          todos={this.tasksFilter()}
+          onDeleted={this.deleteItem}
+          onToggleDone={this.onToggleDone}
+          taskEditor={this.taskEditor}
+        />
+        <Footer
+          filterChanger={this.filterChanger}
+          tasksCleaner={this.tasksCleaner}
+          todos={todoData.filter(({ done }) => !done).length}
+          filter={filter}
+        />
       </div>
-    );
+    )
   }
 }
 
-const container = document.querySelector('.todoapp');
-const root = createRoot(container);
-root.render(<App />);
+const container = document.querySelector('.todoapp')
+const root = createRoot(container)
+root.render(<App />)
