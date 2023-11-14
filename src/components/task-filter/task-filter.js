@@ -3,35 +3,38 @@ import PropTypes from 'prop-types'
 import './task-filter.css'
 
 function TaskFilter({ filter, filterChanger }) {
+  const buttons = [
+    {
+      name: 'All',
+      filter: 'allTasks',
+      key: 1,
+    },
+    {
+      name: 'Active',
+      filter: 'Active',
+      key: 2,
+    },
+    {
+      name: 'Completed',
+      filter: 'completedTasks',
+      key: 3,
+    },
+  ]
+
   return (
     <ul className="filters">
-      <li>
-        <button
-          type="button"
-          onClick={() => filterChanger('allTasks')}
-          className={filter === 'allTasks' ? 'selected' : null}
-        >
-          All
-        </button>
-      </li>
-      <li>
-        <button
-          type="button"
-          onClick={() => filterChanger('Active')}
-          className={filter === 'Active' ? 'selected' : null}
-        >
-          Active
-        </button>
-      </li>
-      <li>
-        <button
-          type="button"
-          onClick={() => filterChanger('completedTasks')}
-          className={filter === 'completedTasks' ? 'selected' : null}
-        >
-          Completed
-        </button>
-      </li>
+      {buttons.map((button) => (
+        <li key={button.key}>
+          <button
+            type="button"
+            onClick={() => filterChanger(button.filter)}
+            className={filter === button.filter ? 'selected' : null}
+            value={button.name}
+          >
+            {button.name}
+          </button>
+        </li>
+      ))}
     </ul>
   )
 }
