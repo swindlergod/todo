@@ -13,7 +13,7 @@ export default class Task extends Component {
   }
 
   render() {
-    const { onDeleted, onToggleDone, todo, taskEditor } = this.props
+    const { onDeleted, onToggleDone, todo, taskEditor, minutes, seconds, pauseTimer, startTimer } = this.props
     const { label, id, done, date } = todo
     const { edit, value } = this.state
 
@@ -44,6 +44,9 @@ export default class Task extends Component {
           />
           <label htmlFor={id}>
             <span className="description">{label}</span>
+            <button type="button" className="icon icon-play" onClick={startTimer} label="play" />
+            <button type="button" className="icon icon-pause" onClick={pauseTimer} label="pause" />
+            {minutes < 10 ? `0${minutes}` : minutes}:{seconds < 10 ? `0${seconds}` : seconds}
             <span className="created"> {time} </span>
           </label>
           <button

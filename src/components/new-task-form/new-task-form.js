@@ -7,11 +7,13 @@ export default class NewTaskForm extends Component {
     super(props)
     this.state = {
       label: '',
+      minutes: '',
+      seconds: '',
     }
   }
 
   render() {
-    const { label } = this.state
+    const { label, minutes, seconds } = this.state
     const { onItemAdded } = this.props
 
     const onLabelChange = (e) => {
@@ -22,16 +24,48 @@ export default class NewTaskForm extends Component {
 
     const onSubmit = (e) => {
       e.preventDefault()
-      onItemAdded(label)
+      onItemAdded(label, minutes, seconds)
       this.setState({
         label: '',
+        minutes: '',
+        seconds: '',
       })
     }
+
+    const onEditMinute = (event) => {
+      this.setState({
+        minutes: Number(event.target.value),
+      })
+    }
+
+    const onEditSecond = (event) => {
+      this.setState({
+        seconds: event.target.value,
+      })
+    }
+
     return (
       <header className="header">
         <h1>todos</h1>
         <form onSubmit={onSubmit}>
           <input className="new-todo" placeholder="What needs to be done?" onChange={onLabelChange} value={label} />
+          <input
+            className="new-todo-form__timer"
+            placeholder="Min"
+            type="number"
+            min={0}
+            onChange={onEditMinute}
+            value={minutes}
+          />
+          <input
+            className="new-todo-form__timer"
+            type="number"
+            placeholder="Sec"
+            onChange={onEditSecond}
+            value={seconds}
+            min={1}
+            max={59}
+          />
         </form>
       </header>
     )
