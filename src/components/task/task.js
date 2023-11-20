@@ -12,20 +12,20 @@ export default class Task extends Component {
       value: '',
       seconds: 0,
       minutes: 0,
-      isTimerOn: false,
+      started: false,
     }
 
-    this.launchTimer = () => {
-      this.timerID = setInterval(() => this.tick(), 1000)
+    this.startTimer = () => {
+      this.timerID = setInterval(() => this.timerFunction(), 1000)
       this.setState(() => ({
-        isTimerOn: true,
+        started: true,
       }))
     }
 
     this.stopTimer = () => {
       clearInterval(this.timerID)
       this.setState(() => ({
-        isTimerOn: false,
+        started: false,
       }))
     }
   }
@@ -37,7 +37,11 @@ export default class Task extends Component {
     })
   }
 
-  tick() {
+  componentWillUnmount() {
+    clearInterval(this.timerID)
+  }
+
+  timerFunction() {
     let stop = this.state.minutes + this.state.seconds
     stop -= 1
     if (stop === 0) {
@@ -54,7 +58,7 @@ export default class Task extends Component {
   render() {
     const { onDeleted, onToggleDone, todo, taskEditor } = this.props
     const { label, id, done, date } = todo
-    const { edit, value, seconds, minutes, isTimerOn } = this.state
+    const { edit, value, seconds, minutes, started } = this.state
 
     const handleClick = (e) => {
       e.stopPropagation()
@@ -87,16 +91,16 @@ export default class Task extends Component {
               <button
                 type="button"
                 className="icon icon-play"
-                onClick={this.launchTimer}
+                onClick={this.startTimer}
                 label="play"
-                disabled={isTimerOn}
+                disabled={started}
               />
               <button
                 type="button"
                 className="icon icon-pause"
                 onClick={this.stopTimer}
                 label="pause"
-                disabled={!isTimerOn}
+                disabled={!started}
               />
               <span>
                 {minutes < 10 ? `0${minutes}` : minutes}:{seconds < 10 ? `0${seconds}` : seconds}
