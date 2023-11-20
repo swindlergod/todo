@@ -1,3 +1,4 @@
+/* eslint-disable react/destructuring-assignment */
 import React, { Component } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import PropTypes from 'prop-types'
@@ -9,13 +10,51 @@ export default class Task extends Component {
     this.state = {
       edit: false,
       value: '',
+      seconds: 0,
+      minutes: 0,
+      isTimerOn: false,
+    }
+
+    this.launchTimer = () => {
+      this.timerID = setInterval(() => this.tick(), 1000)
+      this.setState(() => ({
+        isTimerOn: true,
+      }))
+    }
+
+    this.stopTimer = () => {
+      clearInterval(this.timerID)
+      this.setState(() => ({
+        isTimerOn: false,
+      }))
     }
   }
 
+  componentDidMount() {
+    this.setState({
+      minutes: this.props.minutes,
+      seconds: this.props.seconds,
+    })
+  }
+
+  tick() {
+    let stop = this.state.minutes + this.state.seconds
+    stop -= 1
+    if (stop === 0) {
+      clearInterval(this.timerID)
+    }
+
+    this.setState((prevState) => ({
+      minutes: prevState.seconds ? prevState.minutes : prevState.minutes - 1,
+      seconds: prevState.seconds ? prevState.seconds - 1 : 59,
+    }))
+    return {}
+  }
+
   render() {
-    const { onDeleted, onToggleDone, todo, taskEditor, minutes, seconds, pauseTimer, startTimer } = this.props
+    const { onDeleted, onToggleDone, todo, taskEditor } = this.props
     const { label, id, done, date } = todo
-    const { edit, value } = this.state
+    const { edit, value, seconds, minutes, isTimerOn } = this.state
 
     const handleClick = (e) => {
       e.stopPropagation()
@@ -43,11 +82,27 @@ export default class Task extends Component {
             onChange={(event) => onToggleDone(id, event.target.checked)}
           />
           <label htmlFor={id}>
-            <span className="description">{label}</span>
-            <button type="button" className="icon icon-play" onClick={startTimer} label="play" />
-            <button type="button" className="icon icon-pause" onClick={pauseTimer} label="pause" />
-            {minutes < 10 ? `0${minutes}` : minutes}:{seconds < 10 ? `0${seconds}` : seconds}
-            <span className="created"> {time} </span>
+            <span className="title">{label}</span>
+            <span className="description time">
+              <button
+                type="button"
+                className="icon icon-play"
+                onClick={this.launchTimer}
+                label="play"
+                disabled={isTimerOn}
+              />
+              <button
+                type="button"
+                className="icon icon-pause"
+                onClick={this.stopTimer}
+                label="pause"
+                disabled={!isTimerOn}
+              />
+              <span>
+                {minutes < 10 ? `0${minutes}` : minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+              </span>
+            </span>
+            <span className="description"> {time} </span>
           </label>
           <button
             type="button"

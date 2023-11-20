@@ -1,4 +1,3 @@
-/* eslint-disable react/destructuring-assignment */
 import React, { Component } from 'react'
 import { createRoot } from 'react-dom/client'
 
@@ -17,8 +16,11 @@ class App extends Component {
     }
   }
 
+  componentWillUnmount() {
+    clearInterval(this.timerID)
+  }
+
   deleteItem = (id) => {
-    this.pauseTimer(id)
     this.setState(({ todoData }) => {
       const newArray = todoData.filter((el) => el.id !== id)
       return {
@@ -44,8 +46,6 @@ class App extends Component {
       date: new Date(),
       minutes: min,
       seconds: sec,
-      timerId: null,
-      isTimerOn: false,
     }
 
     this.setState(({ todoData }) => {
@@ -83,74 +83,6 @@ class App extends Component {
 
       return allTasks ? true : completedTasks ? done === true : done === false
     })
-  }
-
-  startTimer = (id) => {
-    const { isTimerOn } = this.state.todoData.find((el) => el.id === id)
-
-    if (!isTimerOn) {
-      const timerId = setInterval(() => {
-        this.setState((prevState) => {
-          const updateTodo = prevState.todoData.map((todoItem) => {
-            if (todoItem.id === id) {
-              if (todoItem.seconds === 0 && todoItem.minutes === 0) {
-                this.pauseTimer(id)
-              }
-              let sec = todoItem.seconds - 1
-              let min = todoItem.minutes
-              if (min > 0 && sec < 0) {
-                min -= 1
-                sec = 59
-              }
-
-              if (min === 0 && sec < 0) {
-                sec = 0
-                this.pauseTimer(id)
-              }
-
-              return {
-                ...todoItem,
-                seconds: sec,
-                minutes: min,
-              }
-            }
-
-            return todoItem
-          })
-
-          return {
-            tatodoData: updateTodo,
-          }
-        })
-      }, 1000)
-      this.setState(({ todoData }) => {
-        const idx = todoData.findIndex((el) => el.id === id)
-        const data = [...todoData]
-        data[idx].timerId = timerId
-        data[idx].isTimerOn = true
-
-        return {
-          todoData: data,
-        }
-      })
-    }
-  }
-
-  pauseTimer = (id) => {
-    const { isTimerOn } = this.state.todoData.find((el) => el.id === id)
-    if (isTimerOn) {
-      const { timerId } = this.state.todoData.find((el) => el.id === id)
-      this.setState(({ todoData }) => {
-        const idx = todoData.findIndex((el) => el.id === id)
-        const data = [...todoData]
-        data[idx].isTimerOn = false
-
-        return {
-          todoData: data,
-        }
-      })
-      clearInterval(timerId)
-    }
   }
 
   render() {
