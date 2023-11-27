@@ -7,31 +7,52 @@ export default class NewTaskForm extends Component {
     super(props)
     this.state = {
       label: '',
+      minutes: '',
+      seconds: '',
     }
   }
 
   render() {
-    const { label } = this.state
+    const { label, minutes, seconds } = this.state
     const { onItemAdded } = this.props
 
     const onLabelChange = (e) => {
-      this.setState({
-        label: e.target.value,
-      })
+      this.setState({ label: e.target.value, minutes, seconds })
     }
 
     const onSubmit = (e) => {
       e.preventDefault()
-      onItemAdded(label)
+      onItemAdded(label, minutes, seconds)
       this.setState({
         label: '',
+        minutes: '',
+        seconds: '',
       })
     }
+
+    const onEditMinute = (event) => {
+      this.setState({ label, minutes: event.target.value, seconds })
+    }
+
+    const onEditSecond = (event) => {
+      this.setState({ label, minutes, seconds: event.target.value })
+    }
+
     return (
       <header className="header">
         <h1>todos</h1>
-        <form onSubmit={onSubmit}>
+        <form className="new-todo-form" onSubmit={onSubmit}>
           <input className="new-todo" placeholder="What needs to be done?" onChange={onLabelChange} value={label} />
+          <input className="new-todo-form__timer" placeholder="Min" min={0} onChange={onEditMinute} value={minutes} />
+          <input
+            className="new-todo-form__timer"
+            placeholder="Sec"
+            onChange={onEditSecond}
+            value={seconds}
+            min={1}
+            max={59}
+          />
+          <button type="submit" aria-label="123" />
         </form>
       </header>
     )
