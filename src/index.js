@@ -1,3 +1,4 @@
+/* eslint-disable react/destructuring-assignment */
 import React, { Component } from 'react'
 import { createRoot } from 'react-dom/client'
 
@@ -46,6 +47,8 @@ class App extends Component {
       date: new Date(),
       minutes: min,
       seconds: sec,
+      started: false,
+      timerID: null,
     }
 
     this.setState(({ todoData }) => {
@@ -83,6 +86,79 @@ class App extends Component {
 
       return allTasks ? true : completedTasks ? done === true : done === false
     })
+  }
+
+  startTimer = (id) => {
+    const { started, seconds, minutes } = this.state.todoData.find((el) => el.id === id)
+    if (Number(seconds) + Number(minutes)) {
+      if (!started) {
+        const timerID = setInterval(
+          () =>
+            this.setState((prevState) => {
+              const newTodo = prevState.todoData.map((todoItem) => {
+                if (todoItem.id === id) {
+                  let stop = todoItem.minutes + todoItem.seconds
+                  stop -= 1
+                  if (stop === 0) {
+                    clearInterval(timerID)
+                  }
+                  let sec = todoItem.seconds - 1
+                  let min = todoItem.minutes
+                  if (min > 0 && sec < 0) {
+                    min -= 1
+                    sec = 59
+                  }
+
+                  if (min === 0 && sec < 0) {
+                    sec = 0
+                    this.pauseTimer(id)
+                  }
+
+                  return {
+                    ...todoItem,
+                    seconds: sec,
+                    minutes: min,
+                  }
+                }
+
+                return todoItem
+              })
+
+              return {
+                todoData: newTodo,
+              }
+            }),
+          1000
+        )
+        this.setState(({ todoData }) => {
+          const idx = todoData.findIndex((el) => el.id === id)
+          const data = [...todoData]
+          data[idx].timerID = timerID
+          data[idx].started = true
+
+          return {
+            todoData: data,
+          }
+        })
+      }
+    }
+  }
+
+  pauseTimer = (id) => {
+    const { started } = this.state.todoData.find((el) => el.id === id)
+    if (started) {
+      const { timerID } = this.state.todoData.find((el) => el.id === id)
+      this.setState(({ todoData }) => {
+        const idx = todoData.findIndex((el) => el.id === id)
+        const data = [...todoData]
+        data[idx].started = false
+
+        return {
+          todoData: data,
+        }
+      })
+      clearInterval(timerID)
+    }
   }
 
   render() {

@@ -10,57 +10,13 @@ export default class Task extends Component {
     this.state = {
       edit: false,
       value: '',
-      seconds: 0,
-      minutes: 0,
-      started: false,
     }
-
-    this.startTimer = () => {
-      if (Number(this.state.seconds) + Number(this.state.minutes)) {
-        this.timerID = setInterval(() => this.timerFunction(), 1000)
-        this.setState(() => ({
-          started: true,
-        }))
-      }
-    }
-
-    this.stopTimer = () => {
-      clearInterval(this.timerID)
-      this.setState(() => ({
-        started: false,
-      }))
-    }
-  }
-
-  componentDidMount() {
-    this.setState({
-      minutes: this.props.minutes,
-      seconds: this.props.seconds,
-    })
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.timerID)
-  }
-
-  timerFunction() {
-    let stop = this.state.minutes + this.state.seconds
-    stop -= 1
-    if (stop === 0) {
-      clearInterval(this.timerID)
-    }
-
-    this.setState((prevState) => ({
-      minutes: prevState.seconds ? prevState.minutes : prevState.minutes - 1,
-      seconds: prevState.seconds ? prevState.seconds - 1 : 59,
-    }))
-    return {}
   }
 
   render() {
-    const { onDeleted, onToggleDone, todo, taskEditor } = this.props
+    const { onDeleted, onToggleDone, todo, taskEditor, startTimer, pauseTimer, seconds, minutes, started } = this.props
     const { label, id, done, date } = todo
-    const { edit, value, seconds, minutes, started } = this.state
+    const { edit, value } = this.state
 
     const handleClick = (e) => {
       e.stopPropagation()
@@ -90,17 +46,11 @@ export default class Task extends Component {
           <label htmlFor={id}>
             <span className="title">{label}</span>
             <span className="description time">
-              <button
-                type="button"
-                className="icon icon-play"
-                onClick={this.startTimer}
-                label="play"
-                disabled={started}
-              />
+              <button type="button" className="icon icon-play" onClick={startTimer} label="play" disabled={started} />
               <button
                 type="button"
                 className="icon icon-pause"
-                onClick={this.stopTimer}
+                onClick={pauseTimer}
                 label="pause"
                 disabled={!started}
               />

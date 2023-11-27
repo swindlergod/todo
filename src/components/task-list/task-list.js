@@ -15,10 +15,11 @@ function TaskList({ todos, onDeleted, onToggleDone, taskEditor, startTimer, paus
             onDeleted={onDeleted}
             todo={todo}
             taskEditor={taskEditor}
-            startTimer={startTimer}
-            pauseTimer={pauseTimer}
+            startTimer={() => startTimer(todo.id)}
+            pauseTimer={() => pauseTimer(todo.id)}
             minutes={todo.minutes}
             seconds={todo.seconds}
+            started={todo.started}
           />
         ))}
       </ul>
