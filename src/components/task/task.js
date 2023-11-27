@@ -16,7 +16,7 @@ export default class Task extends Component {
     }
 
     this.startTimer = () => {
-      if (this.state.seconds + this.state.minutes !== '00') {
+      if (Number(this.state.seconds) + Number(this.state.minutes)) {
         this.timerID = setInterval(() => this.timerFunction(), 1000)
         this.setState(() => ({
           started: true,
