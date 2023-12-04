@@ -1,2 +1,4 @@
+Даня, засчитай ревью по 2 блоку, пожалуйста :)
+
 todoApp Vercel link:
-https://todo-with-timer-five.vercel.app/
+https://dffd-two.vercel.app/
