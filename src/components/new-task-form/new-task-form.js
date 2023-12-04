@@ -14,7 +14,7 @@ export default function NewTaskForm({ onItemAdded }) {
 
   const onSubmit = (e) => {
     e.preventDefault()
-    onItemAdded(label, minutes, seconds)
+    onItemAdded(label, minutes, seconds || 0)
     setLabel('')
     setSeconds('')
     setMinutes('')
